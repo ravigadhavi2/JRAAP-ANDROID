@@ -10,7 +10,22 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   String _name = "";
-  bool changeButton= true;
+  bool changeButton = false;
+  final _formkey = GlobalKey<FormState>();
+
+  movetoHome(BuildContext context) async {
+    if(_formkey.currentState!.validate()){
+      setState(() {
+        changeButton = true;
+      });
+      await Future.delayed(Duration(seconds: 1));
+      await Navigator.pushNamed(context, AppRoutes.homeRoute);
+      setState(() {
+        changeButton = false;
+      });
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,62 +51,71 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-              child: Column(
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(
-                      hintText: "Username",
-                      labelText: "Username",
-                    ),
-                    onChanged: (value) {
-                      _name = value;
-                      setState(() {});
-                    },
-                  ),
-                  TextFormField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: "Enter Password",
-                      labelText: "Password",
-                    ),
-                  ),
-                  SizedBox(
-                    height: 40.0,
-                  ),
-                  InkWell(
-                    onTap: () async {
-                    setState(() {
-                      changeButton=true;
-                    });
-                    await Future.delayed(Duration(seconds: 1));
-                    Navigator.pushNamed(context, AppRoutes.homeRoute);
-                    },
-                    child: AnimatedContainer(
-                      duration: Duration(seconds: 1),
-                      width: 150,
-                      height: 40,
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Login",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18),
+              child: Form(
+                key: _formkey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Username",
+                        labelText: "Username",
                       ),
-                      decoration: BoxDecoration(
-                          color: Colors.deepPurple,
-                          borderRadius: BorderRadius.circular(10)),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "UserName cannot be empty";
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        _name = value;
+                        setState(() {});
+                      },
                     ),
-                  )
-                  // ElevatedButton(
-                  //     onPressed: () {
-                  //       Navigator.pushNamed(context, AppRoutes.homeRoute);
-                  //     },
-                  //     child: Text("Login"),
-                  //     style: TextButton.styleFrom(
-                  //       minimumSize: Size(150,40)
-                  //     ))
-                ],
+                    TextFormField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: "Enter Password",
+                        labelText: "Password",
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "Password cannot be empty";
+                        } else if (value.length < 6) {
+                          return "Password is length should be 6";
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(
+                      height: 40.0,
+                    ),
+                    Material(
+                        color: Colors.deepPurple,
+                        borderRadius:
+                            BorderRadius.circular(changeButton ? 50 : 8),
+                        child: InkWell(
+                          onTap: () => movetoHome(context),
+                          child: AnimatedContainer(
+                            duration: Duration(seconds: 1),
+                            width: changeButton ? 50 : 150,
+                            height: 40,
+                            alignment: Alignment.center,
+                            child: changeButton
+                                ? Icon(
+                                    Icons.done,
+                                    color: Colors.white,
+                                  )
+                                : Text(
+                                    "Login",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18),
+                                  ),
+                          ),
+                        ))
+                  ],
+                ),
               ),
             )
           ],
